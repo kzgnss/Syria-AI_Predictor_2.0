@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Game Analytics - Syria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Жесткий сброс отступов, чтобы ничего не вылезало за края */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Темная хакерская тема */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0b1120;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Главное окно приложения */
+        .app-container {
+            background-color: #161f30;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            padding: 25px 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* Заголовок */
+        .title {
+            text-align: center;
+            color: #10b981;
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 11px;
+            margin-bottom: 20px;
+        }
+
+        /* Бейджи (теги) */
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background-color: #1e293b;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #334155;
+        }
+
+        /* Секция выбора игры */
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .game-btn {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 12px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .game-btn span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        /* Выбранная игра */
+        .game-btn.active {
+            border-color: #10b981;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .popular-tag {
+            position: absolute;
+            top: -8px;
+            right: -5px;
+            background-color: #10b981;
+            color: #000;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        /* Блок потенциального заработка */
+        .earnings-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(56, 189, 248, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .earnings-label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .earnings-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #10b981;
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Статус доступа */
+        .access-locked {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Кнопки */
+        .btn-start {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #b45309, #10b981);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            transition: transform 0.1s;
+        }
+
+        .btn-start:active { transform: scale(0.98); }
+
+        .btn-tg {
+            width: 100%;
+            padding: 15px;
+            background-color: #38bdf8;
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: 900;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .footer-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .live-dot {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* ========================================= */
+        /* ЛОГИКА ВОРОНКИ: МОДАЛЬНОЕ ОКНО */
+        /* ========================================= */
+        
+        /* Задний фон модалки (перекрывает всё) */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Сама карточка модалки */
+        .modal {
+            background-color: #1e293b;
+            width: 90%;
+            max-width: 350px;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #10b981;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-title {
+            color: #10b981;
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        /* Кнопка закрытия (крестик) */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: #94a3b8;
+            font-size: 22px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            line-height: 1;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Стили текста в модалке */
+        .instruction-box {
+            margin-bottom: 15px;
+        }
+
+        .text-ar {
+            font-size: 14px;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+
+        /* Блок промокода */
+        .promo-box {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 2px dashed #10b981;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .promo-box:hover {
+            background-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .promo-code {
+            font-size: 22px;
+            font-weight: 900;
+            color: #10b981;
+            letter-spacing: 2px;
+        }
+
+        .example-img {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* Кнопка регистрации */
+        .btn-register {
+            width: 100%;
+            padding: 16px;
+            background-color: #10b981;
+            color: #000;
+            font-weight: 900;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            animation: pulseBtn 1.5s infinite;
+            text-decoration: none;
+            display: block;
+        }
+
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Главный интерфейс Предиктора -->
+    <div class="app-container" id="mainApp">
+        <h1 class="title">Syria AI Predictor</h1>
+        <div class="subtitle">AI Game Analytics • Syria Dashboard</div>
+
+        <div class="badges">
+            <div class="badge">🇸🇾 Syria</div>
+            <div class="badge">Real-time 📊</div>
+            <div class="badge">AI System ⚡</div>
+            <div class="badge">Secure 🔒</div>
+        </div>
+
+        <div class="section-title">اختر اللعبة</div>
+        <div class="games-grid">
+            <div class="game-btn active" onclick="selectGame(this, 50, 300)">
+                <div class="popular-tag">Popular</div>
+                <span>Aviator</span> ✈️
+            </div>
+            <div class="game-btn" onclick="selectGame(this, 20, 150)">
+                <span>Mines</span> 💣
+            </div>
+            <div class="game-btn" onclick="selectGame(this, 30, 200)">
+                <span>Penalty</span> ⚽
+            </div>
+            <div class="game-btn" onclick="selectGame(this, 40, 250)">
+                <span>Apple of Fortune</span> 🍎
+            </div>
+        </div>
+
+        <!-- Динамический блок заработка -->
+        <div class="earnings-box">
+            <div class="earnings-label">الأرباح المحتملة يومياً:</div>
+            <div class="earnings-value" id="earningsValue">$50 - $300</div>
+        </div>
+
+        <div class="section-title">حالة الوصول</div>
+        <div class="access-locked">
+            🔒 النظام مغلق - يتطلب التسجيل
+        </div>
+
+        <!-- Кнопка запуска -->
+        <button class="btn-start" onclick="showModal()">إنشاء حساب للوصول</button>
+        
+        <!-- Ссылка на Telegram бота -->
+        <button class="btn-tg" onclick="window.open('https://t.me/AiPredictor2_bot', '_blank')">Telegram Support</button>
+
+        <div class="footer-status">
+            <div>Live <span class="live-dot">●</span></div>
+            <div>05:00 ⏳</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно инструкции по регистрации -->
+    <div class="overlay" id="errorModal">
+        <div class="modal" id="modalContent">
+            
+            <!-- Кнопка закрытия -->
+            <button class="close-btn" onclick="closeModal()">×</button>
+
+            <div class="modal-title">✅ تعليمات التسجيل</div>
+            
+            <!-- Инструкция 1 -->
+            <div class="instruction-box">
+                <div class="text-ar">للوصول إلى الذكاء الاصطناعي، يجب إنشاء حساب <b>جديد</b>.</div>
+            </div>
+
+            <!-- Инструкция 2 -->
+            <div class="instruction-box">
+                <div class="text-ar">1. استخدم الرمز الترويجي عند التسجيل:</div>
+            </div>
+            
+            <!-- Промокод -->
+            <div class="promo-box" onclick="copyPromo()">
+                <div class="promo-code" id="promoText">KOLESA228</div>
+                <div style="font-size: 11px; color:#cbd5e1; margin-top: 5px;">👆 انقر لنسخ الرمز</div>
+            </div>
+
+            <!-- Инструкция 3 -->
+            <div class="instruction-box" style="margin-bottom: 10px;">
+                <div class="text-ar">2. تأكد أن المعرف (ID) يبدأ بالرقم <b>17</b>:</div>
+            </div>
+
+            <!-- Обновленная картинка-пример -->
+            <img src="file_4379.jpg" class="example-img" alt="Example ID">
+
+            <!-- ТВОЯ ССЫЛКА НА РЕГИСТРАЦИЮ -->
+            <a href="https://reffpa.com/L?tag=d_5547148m_69917c_&site=5547148&ad=69917&r=registration" class="btn-register" target="_blank">التسجيل الآن</a>
+
+        </div>
+    </div>
+
+    <script>
+        // Функция выбора игры
+        function selectGame(element, minEarnings, maxEarnings) {
+            document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            const earningsValue = document.getElementById('earningsValue');
+            earningsValue.style.opacity = '0'; 
+            
+            setTimeout(() => {
+                earningsValue.innerText = `$${minEarnings} - $${maxEarnings}`;
+                earningsValue.style.opacity = '1';
+            }, 250);
+        }
+
+        // Показ модального окна
+        function showModal() {
+            const overlay = document.getElementById('errorModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            overlay.style.display = 'flex'; // Показываем фон
+            
+            // Задержка для плавной анимации
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                modalContent.style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            const overlay = document.getElementById('errorModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            // Запускаем обратную анимацию
+            overlay.style.opacity = '0';
+            modalContent.style.transform = 'scale(0.9)';
+            
+            // Полностью скрываем элемент после завершения анимации
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        // Копирование промокода
+        function copyPromo() {
+            const promo = document.getElementById('promoText').innerText;
+            const tempInput = document.createElement('input');
+            tempInput.value = promo;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert("تم نسخ الرمز الترويجي بنجاح!");
+        }
+    </script>
+</body>
+</html>
